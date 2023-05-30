@@ -1,0 +1,44 @@
+version: '3.9'
+
+networks:
+  app-network:
+    driver: bridge
+  network-local: null
+volumes:
+  db-value:
+    driver: local
+
+services:
+  db:
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+    volumes:
+      - type: volume
+        source: db-value
+        target: /var/lib/mysql
+    expose:
+      - '3306'
+    ports:
+      - '3306:3306'
+    networks:
+      - app-network
+      - network-local
+  php:
+    image: 4uva4elo/php7.0-apache
+    environment:
+      XDEBUG_CONFIG: "remote_host=host.docker.internal remote_port=9003 remote_enable=1"
+    volumes:
+      - type: bind
+        source: ./
+        target: /var/www/html
+    ports:
+      - '80:80'
+    expose:
+      - 9000
+    networks:
+      - app-network
+
